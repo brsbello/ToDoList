@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/bruno/AndroidStudioProjects/ToDoList/app/src/main/res/drawable/ic_navigate_before.xml" value="0.14322916666666666" />
+        <entry key="..\:/Users/bruno/AndroidStudioProjects/ToDoList/app/src/main/res/layout/activity_add_task.xml" value="0.176" />
         <entry key="..\:/Users/bruno/AndroidStudioProjects/ToDoList/app/src/main/res/layout/activity_main.xml" value="0.1793478260869565" />
       </map>
     </option>
