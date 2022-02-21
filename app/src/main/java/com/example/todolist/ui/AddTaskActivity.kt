@@ -3,9 +3,8 @@ package com.example.todolist.ui
 import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.todolist.MainActivity
 import com.example.todolist.databinding.ActivityAddTaskBinding
-import com.example.todolist.datasource.TaskDataSource
+import com.example.todolist.datasource.TaskDAO
 import com.example.todolist.extensions.format
 import com.example.todolist.extensions.text
 import com.example.todolist.model.Task
@@ -25,7 +24,7 @@ class AddTaskActivity : AppCompatActivity() {
 
         if (intent.hasExtra(TASK_ID)) {
             val taskId = intent.getIntExtra(TASK_ID, 0)
-            TaskDataSource.findById(taskId)?.let {
+            TaskDAO.findById(taskId)?.let {
                 binding.ETTitle.text = it.title
                 binding.ETDate.text = it.date
                 binding.ETHour.text = it.hour
@@ -37,13 +36,13 @@ class AddTaskActivity : AppCompatActivity() {
     }
 
     private fun insertListeners() {
-        ConfigDate()
-        ConfigHour()
-        ConfigCancelButton()
-        ConfigCreateButton()
+        configDate()
+        configHour()
+        configCancelButton()
+        configCreateButton()
     }
 
-    private fun ConfigCreateButton() {
+    private fun configCreateButton() {
         binding.BTNewTask.setOnClickListener {
             val task = Task(
                 id = intent.getIntExtra(TASK_ID, 0),
@@ -53,19 +52,19 @@ class AddTaskActivity : AppCompatActivity() {
                 hour = binding.ETHour.text
 
             )
-            TaskDataSource.insertTask(task)
+            TaskDAO.insertTask(task)
             setResult(Activity.RESULT_OK)
             finish()
         }
     }
 
-    private fun ConfigCancelButton() {
+    private fun configCancelButton() {
         binding.BTCancel.setOnClickListener {
             finish()
         }
     }
 
-    private fun ConfigHour() {
+    private fun configHour() {
         binding.ETHour.editText?.setOnClickListener {
             val timePicker =
                 MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H).build()
@@ -79,7 +78,7 @@ class AddTaskActivity : AppCompatActivity() {
         }
     }
 
-    private fun ConfigDate() {
+    private fun configDate() {
         binding.ETDate.editText?.setOnClickListener {
             val datePicker = MaterialDatePicker.Builder.datePicker().build()
             datePicker.addOnPositiveButtonClickListener {
