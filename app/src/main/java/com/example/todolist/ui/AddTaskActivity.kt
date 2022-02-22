@@ -1,10 +1,11 @@
 package com.example.todolist.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.todolist.databinding.ActivityAddTaskBinding
-import com.example.todolist.datasource.TaskDAO
+import com.example.todolist.datasource.room.TaskDataBase
 import com.example.todolist.extensions.format
 import com.example.todolist.extensions.text
 import com.example.todolist.model.Task
@@ -16,15 +17,18 @@ import java.util.*
 class AddTaskActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddTaskBinding
+    private var idTask : Long = 0
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         if (intent.hasExtra(TASK_ID)) {
-            val taskId = intent.getIntExtra(TASK_ID, 0)
-            TaskDAO.findById(taskId)?.let {
+            intent.getParcelableExtra<Task>(TASK_ID)?.let {
+                binding.BTNewTask.text = "Alterar Tarefa"
+                idTask = it.id
                 binding.ETTitle.text = it.title
                 binding.ETDate.text = it.date
                 binding.ETHour.text = it.hour
@@ -32,7 +36,6 @@ class AddTaskActivity : AppCompatActivity() {
             }
         }
         insertListeners()
-
     }
 
     private fun insertListeners() {
@@ -43,19 +46,28 @@ class AddTaskActivity : AppCompatActivity() {
     }
 
     private fun configCreateButton() {
+        val db = TaskDataBase.intance(this)
         binding.BTNewTask.setOnClickListener {
-            val task = Task(
-                id = intent.getIntExtra(TASK_ID, 0),
-                title = binding.ETTitle.text,
-                description = binding.ETDescription.text,
-                date = binding.ETDate.text,
-                hour = binding.ETHour.text
-
-            )
-            TaskDAO.insertTask(task)
+            val task = newTask()
+            if(idTask > 0 ) {
+                db.taskDao().update(task)
+            } else {
+                db.taskDao().save(task)
+            }
             setResult(Activity.RESULT_OK)
             finish()
         }
+    }
+
+    private fun newTask(): Task {
+        return Task(
+            id = idTask,
+            title = binding.ETTitle.text,
+            description = binding.ETDescription.text,
+            date = binding.ETDate.text,
+            hour = binding.ETHour.text
+
+        )
     }
 
     private fun configCancelButton() {

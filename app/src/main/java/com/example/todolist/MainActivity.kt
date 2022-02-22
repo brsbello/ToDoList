@@ -7,8 +7,9 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.todolist.databinding.ActivityMainBinding
-import com.example.todolist.datasource.TaskDAO
+import com.example.todolist.datasource.room.TaskDataBase
 import com.example.todolist.ui.AddTaskActivity
+import com.example.todolist.ui.AddTaskActivity.Companion.TASK_ID
 import com.example.todolist.ui.adapter.TaskListAdapter
 
 class MainActivity : AppCompatActivity() {
@@ -18,7 +19,6 @@ class MainActivity : AppCompatActivity() {
     private val launchSomeActivity =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                //val data: Intent? = result.data
                 updateList()
             }
         }
@@ -28,11 +28,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupAdapter()
+        insertListeners()
     }
 
     override fun onResume() {
         super.onResume()
-        insertListeners()
         updateList()
     }
 
@@ -43,17 +43,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteTask() {
+        val db = TaskDataBase.intance(this)
         adapter.listenerDelete = {
-            TaskDAO.deleteTask(it)
+            db.taskDao().delete(it)
             updateList()
         }
     }
 
     private fun editTask() {
         adapter.listenerEdit = {
-            val intent = Intent(this, AddTaskActivity::class.java)
-            intent.putExtra(AddTaskActivity.TASK_ID, it.id)
-            launchSomeActivity.launch(intent)
+            Intent(this, AddTaskActivity::class.java).apply {
+                putExtra(TASK_ID, it)
+                startActivity(this)
+            }
         }
     }
 
@@ -73,9 +75,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateList() {
-        val list = TaskDAO.getList()
-        binding.IncludeEmpty.emptyStateLayout.visibility = if (list.isEmpty()) View.VISIBLE
+        val db = TaskDataBase.intance(this)
+        val list = db.taskDao()
+        binding.IncludeEmpty.emptyStateLayout.visibility = if (db.taskDao().searchAll().isEmpty()) View.VISIBLE
         else View.GONE
-        adapter.submitList(list)
+        adapter.submitList(list.searchAll())
     }
 }
