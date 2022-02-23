@@ -17,25 +17,27 @@ import java.util.*
 class AddTaskActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddTaskBinding
-    private var idTask : Long = 0
+    private val db by lazy { TaskDataBase.intance(this).taskDao() }
+    private var idTask: Long = 0
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        if (intent.hasExtra(TASK_ID)) {
-            intent.getParcelableExtra<Task>(TASK_ID)?.let {
-                binding.BTNewTask.text = "Alterar Tarefa"
-                idTask = it.id
-                binding.ETTitle.text = it.title
-                binding.ETDate.text = it.date
-                binding.ETHour.text = it.hour
-                binding.ETDescription.text = it.description
-            }
-        }
+        recoverData()
         insertListeners()
+    }
+
+    private fun recoverData() {
+        intent.getParcelableExtra<Task>(TASK_ID)?.let {
+            binding.BTNewTask.text = "Alterar Tarefa"
+            idTask = it.id
+            binding.ETTitle.text = it.title
+            binding.ETDate.text = it.date
+            binding.ETHour.text = it.hour
+            binding.ETDescription.text = it.description
+        }
     }
 
     private fun insertListeners() {
@@ -46,13 +48,12 @@ class AddTaskActivity : AppCompatActivity() {
     }
 
     private fun configCreateButton() {
-        val db = TaskDataBase.intance(this)
         binding.BTNewTask.setOnClickListener {
             val task = newTask()
-            if(idTask > 0 ) {
-                db.taskDao().update(task)
+            if (idTask > 0) {
+                db.update(task)
             } else {
-                db.taskDao().save(task)
+                db.save(task)
             }
             setResult(Activity.RESULT_OK)
             finish()

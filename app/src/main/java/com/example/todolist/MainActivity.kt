@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val adapter: TaskListAdapter = TaskListAdapter()
+    private val db by lazy { TaskDataBase.intance(this).taskDao() }
     private val launchSomeActivity =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -43,9 +44,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteTask() {
-        val db = TaskDataBase.intance(this)
         adapter.listenerDelete = {
-            db.taskDao().delete(it)
+            db.delete(it)
             updateList()
         }
     }
@@ -75,10 +75,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateList() {
-        val db = TaskDataBase.intance(this)
-        val list = db.taskDao()
-        binding.IncludeEmpty.emptyStateLayout.visibility = if (db.taskDao().searchAll().isEmpty()) View.VISIBLE
+        binding.IncludeEmpty.emptyStateLayout.visibility = if (db.searchAll().isEmpty()) View.VISIBLE
         else View.GONE
-        adapter.submitList(list.searchAll())
+        adapter.submitList(db.searchAll())
     }
 }

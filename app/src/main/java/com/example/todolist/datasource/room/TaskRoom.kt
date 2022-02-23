@@ -7,14 +7,20 @@ import com.example.todolist.model.Task
 interface TaskRoom {
 
     @Query("SELECT * FROM Task")
-    fun searchAll() : List<Task>
+    fun searchAll(): List<Task>
 
     @Insert
-    fun save(task : Task)
+    fun save(task: Task)
 
     @Delete
-    fun delete(task : Task)
+    fun delete(task: Task)
 
-   @Update
-   fun update(task : Task)
+    @Update
+    fun update(task: Task)
+
+    //@Query("SELECT * FROM Task WHERE id = :id")
+    //fun searchForId(id: Long): Task?
+
+    //@Query("SELECT * FROM Task ORDER BY date ASC")
+    //fun searchAllOrderByDescAsc(): List<Produto>
 }
